@@ -31,9 +31,29 @@ pipeline {
             }
         }
 
+      stage('Extract Image Info') {
+            steps {
+                script {
+                    def imageName = sh(
+                        script: "xmllint --xpath 'string(//mvn:project/mvn:artifactId)' pom.xml \
+                            --html --nowarning --recover \
+                            --xpath-ns mvn=http://maven.apache.org/POM/4.0.0",
+                        returnStdout: true
+                    ).trim()
 
+                    def imageTag = sh(
+                        script: "xmllint --xpath 'string(//mvn:project/mvn:version)' pom.xml \
+                            --html --nowarning --recover \
+                            --xpath-ns mvn=http://maven.apache.org/POM/4.0.0",
+                        returnStdout: true
+                    ).trim()
 
-        stage('Build Docker Image') {
+                    echo "Docker Image: ${imageName}:${imageTag}"
+                }
+            }
+        }
+
+        /* stage('Build Docker Image') {
             agent {
                     docker {
                              image 'my-aws-cli'
@@ -73,29 +93,17 @@ pipeline {
                          }
 
                     }
-                }
+                } */
 
-
-        /* stage('Push Docker Image') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh '''
-                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
-                        docker push ${IMAGE_NAME}:${IMAGE_TAG}
-                        docker logout
-                    '''
-                }
-            }
-        } */
     }
 
 
-     post {
+     /* post {
         success {
             echo "Build and Docker image creation successful: ${IMAGE_NAME}:${IMAGE_TAG}"
         }
         failure {
             echo "Build failed!"
         }
-    }
+    } */
 }
