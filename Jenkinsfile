@@ -31,13 +31,6 @@ pipeline {
         }
 
       stage('Extract Docker Image Info') {
-                   agent {
-                          docker {
-                                   image 'my-aws-cli'
-                                   reuseNode true
-                                   args "-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=''"
-                          }
-                   }
                   steps {
                       script {
                           def imageName = sh(
@@ -52,16 +45,31 @@ pipeline {
 
                           echo "Docker Image: ${imageName}:${imageTag}"
 
-                          def fullImage = "${AWS_ACC_ID}/${imageName}:${imageTag}"
-                          // Modify task definition file in-place using a temp file and jq
-                             sh """
-                                  tmpfile=\$(mktemp)
-                                  jq '.containerDefinitions[0].image = "${fullImage}"' ${TASK_DEF_FILE} > "\$tmpfile" && mv "\$tmpfile" ${TASK_DEF_FILE}
-                                """
-
-                           echo "Updated ECS task definition image to: ${fullImage}"
                       }
                   }
+      }
+
+      stage('Change the register config'){
+                 agent {
+                          docker {
+                                   image 'my-aws-cli'
+                                   reuseNode true
+                                   args "-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=''"
+                          }
+                 }
+                       steps {
+                           script {
+
+                             def fullImage = "${AWS_ACC_ID}/${imageName}:${imageTag}"
+                             // Modify task definition file in-place using a temp file and jq
+                             sh """
+                                tmpfile=\$(mktemp)
+                                jq '.containerDefinitions[0].image = "${fullImage}"' ${TASK_DEF_FILE} > "\$tmpfile" && mv "\$tmpfile" ${TASK_DEF_FILE}
+                                """
+                             echo "Updated ECS task definition image to: ${fullImage}"
+                           }
+                       }
+
       }
 
 
