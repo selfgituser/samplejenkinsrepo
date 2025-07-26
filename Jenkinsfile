@@ -49,11 +49,11 @@ pipeline {
 
 
         stage('Build Docker Image') {
-            agent any
             steps {
                 sh '''
-                    echo "DOCKER_HOST = $DOCKER_HOST"
-                    unset DOCKER_HOST
+                    docker context create jenkins-context --docker "host=unix:///var/run/docker.sock" || true
+                    docker context use jenkins-context
+                    export DOCKER_HOST=unix:///var/run/docker.sock
                     docker version
                     docker build -t samplemicro:latest .
                 '''
