@@ -87,12 +87,13 @@ pipeline {
 
           steps {
                 script {
+                def fullImage = "${AWS_ACC_ID}/${imageName}:${imageTag}"
                      withCredentials([usernamePassword(credentialsId: 'awscred', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
-                               sh '''
-                                docker build -t ${AWS_ACC_ID}/${imageName}:${imageTag} .
+                               sh """
+                                docker build -t ${fullImage} .
                                 aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACC_ID}
-                                docker push ${AWS_ACC_ID}/${imageName}:${imageTag}
-                                '''
+                                docker push ${fullImage}
+                                """
                      }
                }
             }
