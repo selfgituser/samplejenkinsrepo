@@ -6,6 +6,8 @@ pipeline {
         IMAGE_TAG = 'latest'
         AWS_ACC_ID = '982534379483.dkr.ecr.us-east-2.amazonaws.com'
         AWS_DEFAULT_REGION = 'us-east-2'
+        AWS_CLUSTER='ecommerce-cluster'
+        AWS_SERVICE=''
 
     }
 
@@ -66,6 +68,7 @@ pipeline {
                            sh '''
                              aws --version
                              aws ecs register-task-definition --cli-input-json file://aws/task-definition.json
+                             aws ecs update-service --cluster ${AWS_CLUSTER} --service samplejekinstask-service --task-definition samplejekinstask:3
                             '''
                          }
 
