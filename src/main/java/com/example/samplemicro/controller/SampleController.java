@@ -13,6 +13,6 @@ public class SampleController {
 
     @GetMapping("/getmsg")
     public Map<String,String> getMessage(){
-        return Map.of("message","Hi This is a sample message from a microservice , U did well");
+        return Map.of("message","Hi This is a sample message from a microservice , U did well and changed the version as well");
     }
 }
