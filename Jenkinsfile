@@ -50,16 +50,19 @@ pipeline {
 
         stage('Build Docker Image') {
             agent {
-                                    docker {
-                                        image 'amazon/aws-cli'
-                                        reuseNode true
-                                        args "--entrypoint=''"
-                                    }
-                                }
+                    docker {
+                             image 'amazon/aws-cli'
+                             reuseNode true
+                             args "-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=''"
+                    }
+            }
 
          steps {
                 script {
-                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                    sh '''
+                    amazon-linux-extras install docker
+                    docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                    '''
                 }
             }
         }
