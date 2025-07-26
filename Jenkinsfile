@@ -11,27 +11,9 @@ pipeline {
         jdk 'JDK_17'         // Adjust according to your setup
     }
 
-    stage('Extract POM Info') {
-            steps {
-                script {
-                    // Get version
-                    env.IMAGE_TAG = sh(
-                        script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout",
-                        returnStdout: true
-                    ).trim()
 
-                    // Get artifactId or name
-                    env.IMAGE_NAME = sh(
-                        script: "mvn help:evaluate -Dexpression=project.name -q -DforceStdout",
-                        returnStdout: true
-                    ).trim()
-
-                    echo "Project Name: ${env.IMAGE_NAME}"
-                    echo "Project Version: ${env.IMAGE_TAG}"
-                }
-            }
-        }
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
@@ -43,7 +25,26 @@ pipeline {
                 sh 'mvn clean package -DskipTests'
             }
         }
+        stage('Extract POM Info') {
+                steps {
+                    script {
+                        // Get version
+                        env.IMAGE_TAG = sh(
+                            script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout",
+                            returnStdout: true
+                        ).trim()
 
+                        // Get artifactId or name
+                        env.IMAGE_NAME = sh(
+                            script: "mvn help:evaluate -Dexpression=project.name -q -DforceStdout",
+                            returnStdout: true
+                        ).trim()
+
+                        echo "Project Name: ${env.IMAGE_NAME}"
+                        echo "Project Version: ${env.IMAGE_TAG}"
+                    }
+                }
+            }
         /* stage('AWS') {
                     agent {
                         docker {
