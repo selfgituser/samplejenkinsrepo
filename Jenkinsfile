@@ -4,7 +4,6 @@ pipeline {
     environment {
         IMAGE_NAME = 'samplemicro'
         IMAGE_TAG = 'latest'
-        AWS_DOCKER_REGISTRY= 'sample-jenkins-auto-repo'
         AWS_ACC_ID = '982534379483.dkr.ecr.us-east-2.amazonaws.com'
         AWS_REGION = 'us-east-2'
 
@@ -47,7 +46,7 @@ pipeline {
                                sh '''
                                 docker build -t ${AWS_ACC_ID}/${IMAGE_NAME}:${IMAGE_TAG} .
                                 aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACC_ID}
-                                docker push ${AWS_ACC_ID}/${AWS_DOCKER_REGISTRY}:${IMAGE_TAG}
+                                docker push ${AWS_ACC_ID}/${IMAGE_NAME}:${IMAGE_TAG}
                                 '''
                      }
                }
