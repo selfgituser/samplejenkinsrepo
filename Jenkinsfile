@@ -49,16 +49,13 @@ pipeline {
 
 
         stage('Build Docker Image') {
-          agent {
-              docker {
-                    image 'docker:24.0-cli'  // or similar version
-                    reuseNode true
-                    args "-v /var/run/docker.sock:/var/run/docker.sock"
-                   }
-                 }
+
           steps {
                 script {
-                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                    sh '''
+                    unset DOCKER_HOST
+                    docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+                    '''
                 }
             }
         }
