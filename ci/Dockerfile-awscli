@@ -1,17 +1,40 @@
-FROM amazonlinux:2
+# Start from an OpenJDK base image (adjust the version as needed)
+FROM openjdk:17-slim
 
-# Install Docker CLI and unzip, curl
-RUN yum update -y && \
-    yum install -y docker unzip curl && \
-    yum clean all
+# Set environment variable for non-interactive install
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Install AWS CLI v2
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    unzip \
+    gnupg \
+    lsb-release \
+    apt-transport-https \
+    ca-certificates \
+    software-properties-common \
+    git \
+    sudo \
+    && rm -rf /var/lib/apt/lists/*
+
+# --- Install AWS CLI v2 ---
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
     unzip awscliv2.zip && \
     ./aws/install && \
-    rm -rf awscliv2.zip aws
+    rm -rf aws awscliv2.zip
 
-# Verify installs
-RUN aws --version && docker --version
+# --- Install Docker CLI ---
+RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg && \
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/debian $(lsb_release -cs) stable" | \
+    tee /etc/apt/sources.list.d/docker.list > /dev/null && \
+    apt-get update && \
+    apt-get install -y docker-ce-cli && \
+    rm -rf /var/lib/apt/lists/*
+
+# Verify installations
+RUN aws --version && docker --version && java -version
+
+# Default to bash (useful for Jenkins scripted pipelines)
+ENTRYPOINT ["/bin/bash"]
 
 
