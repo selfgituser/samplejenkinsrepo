@@ -1,9 +1,11 @@
-FROM amazon/aws-cli
+FROM docker:24.0-cli
 
-USER root
+# Install AWS CLI v2
+RUN apk add --no-cache curl unzip \
+ && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
+ && unzip awscliv2.zip \
+ && ./aws/install \
+ && rm -rf awscliv2.zip aws
 
-# Install Docker CLI
-RUN apk add --no-cache docker-cli
-
-# Confirm both tools exist
+# Check versions
 RUN aws --version && docker --version
