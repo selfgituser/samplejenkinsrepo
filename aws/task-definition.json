@@ -1,0 +1,52 @@
+{
+  "family": "samplejekinstask",
+  "containerDefinitions": [
+    {
+      "name": "samplejenkins",
+      "image": "982534379483.dkr.ecr.us-east-2.amazonaws.com/samplemicro:latest",
+      "cpu": 512,
+      "memory": 1024,
+      "portMappings": [
+        {
+          "name": "8084",
+          "containerPort": 8084,
+          "hostPort": 8084,
+          "protocol": "tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "essential": true,
+      "environment": [],
+      "environmentFiles": [],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "ulimits": [],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/samplejekinstask",
+          "awslogs-create-group": "true",
+          "awslogs-region": "us-east-2",
+          "awslogs-stream-prefix": "ecs"
+        },
+        "secretOptions": []
+      },
+      "systemControls": []
+    }
+  ],
+  "taskRoleArn": "arn:aws:iam::982534379483:role/ecsTaskExecutionRoleWithKafka",
+  "executionRoleArn": "arn:aws:iam::982534379483:role/ecsTaskExecutionRoleWithKafka",
+  "networkMode": "awsvpc",
+  "volumes": [],
+  "placementConstraints": [],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "512",
+  "memory": "1024",
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  },
+  "enableFaultInjection": false
+}

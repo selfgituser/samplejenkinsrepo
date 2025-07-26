@@ -5,7 +5,7 @@ pipeline {
         IMAGE_NAME = 'samplemicro'
         IMAGE_TAG = 'latest'
         AWS_ACC_ID = '982534379483.dkr.ecr.us-east-2.amazonaws.com'
-        AWS_REGION = 'us-east-2'
+        AWS_DEFAULT_REGION = 'us-east-2'
 
     }
 
@@ -45,7 +45,7 @@ pipeline {
                      withCredentials([usernamePassword(credentialsId: 'awscred', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                                sh '''
                                 docker build -t ${AWS_ACC_ID}/${IMAGE_NAME}:${IMAGE_TAG} .
-                                aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${AWS_ACC_ID}
+                                aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACC_ID}
                                 docker push ${AWS_ACC_ID}/${IMAGE_NAME}:${IMAGE_TAG}
                                 '''
                      }
@@ -53,7 +53,7 @@ pipeline {
             }
         }
 
-         /* stage('AWS') {
+          stage('AWS') {
                     agent {
                         docker {
                             image 'my-aws-cli'
@@ -65,13 +65,12 @@ pipeline {
                         withCredentials([usernamePassword(credentialsId: 'awscred', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                            sh '''
                              aws --version
-                             aws s3 ls
-                             aws s3 cp $WORKSPACE/target/ s3://my-image-storage-bucket-2025/jars/ --recursive --exclude "*" --include "*.jar"
+                             aws ecs register-task-definition --cli-input-json file://aws/task-definition.json
                             '''
                          }
 
                     }
-                } */
+                }
 
 
         /* stage('Push Docker Image') {
