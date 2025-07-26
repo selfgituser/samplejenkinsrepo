@@ -1,0 +1,12 @@
+pipeline {
+    agent any
+
+    stages {
+
+            stage('Build docker Image') {
+                steps {
+                   sh 'docker build -f ci/Dockerfile-awscli -t my-aws-cli .'
+                }
+            }
+    }
+ }
