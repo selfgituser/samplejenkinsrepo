@@ -26,25 +26,35 @@ pipeline {
             }
         }
         stage('Extract POM Info') {
-                steps {
-                    script {
-                        // Get version
-                        env.IMAGE_TAG = sh(
-                            script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout | grep -Ev '(^\\[|Download|WARNING)' | tail -n 1",
+            steps {
+                script {
+                    // Get version (resolves inherited version from parent)
+                    env.IMAGE_TAG = sh(
+                        script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout | grep -Ev '(^\\[|Download|WARNING)' | tail -n 1",
+                        returnStdout: true
+                    ).trim()
+
+                    // Try to get project.name, fallback to artifactId
+                    def name = sh(
+                        script: "mvn help:evaluate -Dexpression=project.name -q -DforceStdout | grep -Ev '(^\\[|Download|WARNING)' | tail -n 1",
+                        returnStdout: true
+                    ).trim()
+
+                    if (!name) {
+                        name = sh(
+                            script: "mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout | grep -Ev '(^\\[|Download|WARNING)' | tail -n 1",
                             returnStdout: true
                         ).trim()
-
-                        // Get artifactId or name
-                        env.IMAGE_NAME = sh(
-                            script: "mvn help:evaluate -Dexpression=project.name -q -DforceStdout | grep -Ev '(^\\[|Download|WARNING)' | tail -n 1",
-                            returnStdout: true
-                        ).trim()
-
-                        echo "Project Name: ${env.IMAGE_NAME}"
-                        echo "Project Version: ${env.IMAGE_TAG}"
                     }
+
+                    env.IMAGE_NAME = name
+
+                    echo "Resolved Project Name (IMAGE_NAME): ${env.IMAGE_NAME}"
+                    echo "Resolved Project Version (IMAGE_TAG): ${env.IMAGE_TAG}"
                 }
             }
+        }
+
         /* stage('AWS') {
                     agent {
                         docker {
