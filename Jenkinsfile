@@ -5,7 +5,8 @@ pipeline {
         AWS_ACC_ID = '982534379483.dkr.ecr.us-east-2.amazonaws.com'
         AWS_DEFAULT_REGION = 'us-east-2'
         AWS_CLUSTER='ecommerce-cluster'
-        AWS_SERVICE=''
+        AWS_SERVICE='samplejekinstask-service'
+        TASK_DEF_FILE='aws/task-definition.json'
 
     }
 
@@ -43,13 +44,22 @@ pipeline {
                           ).trim()
 
                           echo "Docker Image: ${imageName}:${imageTag}"
+
+                          def fullImage = "${AWS_ACC_ID}/${imageName}:${imageTag}"
+                          // Modify task definition file in-place using a temp file and jq
+                             sh """
+                                  tmpfile=\$(mktemp)
+                                  jq '.containerDefinitions[0].image = "${fullImage}"' ${TASK_DEF_FILE} > "\$tmpfile" && mv "\$tmpfile" ${TASK_DEF_FILE}
+                                """
+
+                           echo "Updated ECS task definition image to: ${fullImage}"
                       }
                   }
       }
 
 
 
-         /* stage('Build Docker Image') {
+          stage('Build Docker Image') {
             agent {
                     docker {
                              image 'my-aws-cli'
@@ -83,23 +93,25 @@ pipeline {
                         withCredentials([usernamePassword(credentialsId: 'awscred', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                            sh '''
                              aws --version
-                             aws ecs register-task-definition --cli-input-json file://aws/task-definition.json
-                             aws ecs update-service --cluster ${AWS_CLUSTER} --service samplejekinstask-service --task-definition samplejekinstask:3
+                             REGISTER_OUTPUT=$(aws ecs register-task-definition --cli-input-json file://${TASK_DEF_FILE})
+                             # Extract the task definition ARN from the output
+                             TASK_DEF_ARN=$(echo $REGISTER_OUTPUT | jq -r '.taskDefinition.taskDefinitionArn')
+                             aws ecs update-service --cluster ${AWS_CLUSTER} --service ${AWS_SERVICE} --task-definition ${TASK_DEF_ARN}
                             '''
                          }
 
                     }
-                } */
+                }
 
     }
 
 
-      /* post {
+       post {
         success {
             echo "Build and Docker image and deployment to aws is successful: ${imageName}:${imageTag}"
         }
         failure {
             echo "Build failed!"
         }
-    }*/
+    }
 }
