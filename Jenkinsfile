@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = ''
-        IMAGE_TAG = ''
+        IMAGE_NAME = 'samplemicro'
+        IMAGE_TAG = 'latest'
     }
 
     tools {
@@ -23,35 +23,6 @@ pipeline {
         stage('Build with Maven') {
             steps {
                 sh 'mvn clean package -DskipTests'
-            }
-        }
-        stage('Extract POM Info') {
-            steps {
-                script {
-                    // Get version (resolves inherited version from parent)
-                    env.IMAGE_TAG = sh(
-                        script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout | grep -Ev '(^\\[|Download|WARNING)' | tail -n 1",
-                        returnStdout: true
-                    ).trim()
-
-                    // Try to get project.name, fallback to artifactId
-                    def name = sh(
-                        script: "mvn help:evaluate -Dexpression=project.name -q -DforceStdout | grep -Ev '(^\\[|Download|WARNING)' | tail -n 1",
-                        returnStdout: true
-                    ).trim()
-
-                    if (!name) {
-                        name = sh(
-                            script: "mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout | grep -Ev '(^\\[|Download|WARNING)' | tail -n 1",
-                            returnStdout: true
-                        ).trim()
-                    }
-
-                    env.IMAGE_NAME = name
-
-                    echo "Resolved Project Name (IMAGE_NAME): ${env.IMAGE_NAME}"
-                    echo "Resolved Project Version (IMAGE_TAG): ${env.IMAGE_TAG}"
-                }
             }
         }
 
@@ -78,10 +49,16 @@ pipeline {
 
 
         stage('Build Docker Image') {
-
+          agent {
+              docker {
+                    image 'docker:24.0-cli'  // or similar version
+                    reuseNode true
+                    args "-v /var/run/docker.sock:/var/run/docker.sock"
+                   }
+                 }
           steps {
                 script {
-                    sh "docker build -t ${env.IMAGE_NAME}:${env.IMAGE_TAG} ."
+                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
                 }
             }
         }
