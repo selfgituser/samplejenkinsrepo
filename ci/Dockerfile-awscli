@@ -31,10 +31,12 @@ RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /
     apt-get install -y docker-ce-cli && \
     rm -rf /var/lib/apt/lists/*
 
+# Install jq
+RUN apt-get update && apt-get install -y jq && rm -rf /var/lib/apt/lists/*
+
 # Verify installations
 RUN aws --version && docker --version && java -version
 
-RUN yum install jq -y
 # Default to bash (useful for Jenkins scripted pipelines)
 ENTRYPOINT ["/bin/bash"]
 
