@@ -1,3 +1,6 @@
+def imageName = ''
+def imageTag = ''
+
 pipeline {
     agent any
 
@@ -7,8 +10,6 @@ pipeline {
         AWS_CLUSTER='ecommerce-cluster'
         AWS_SERVICE='samplejekinstask-service'
         TASK_DEF_FILE='aws/task-definition.json'
-        IMAGE_NAME = ''
-        IMAGE_TAG = ''
     }
 
     tools {
@@ -34,17 +35,17 @@ pipeline {
       stage('Extract Docker Image Info') {
                   steps {
                       script {
-                          env.IMAGE_NAME = sh(
+                          imageName = sh(
                               script: "mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout",
                               returnStdout: true
                           ).trim()
 
-                          env.IMAGE_TAG = sh(
+                          imageTag = sh(
                               script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout",
                               returnStdout: true
                           ).trim()
 
-                          echo "Docker Image: ${env.IMAGE_NAME}:${env.IMAGE_TAG}"
+                          echo "Docker Image: ${imageName}:${imageTag}"
 
                       }
                   }
@@ -61,7 +62,7 @@ pipeline {
                        steps {
                            script {
 
-                             def fullImage = "${AWS_ACC_ID}/${env.IMAGE_NAME}:${env.IMAGE_TAG}"
+                             def fullImage = "${AWS_ACC_ID}/${imageName}:${imageTag}"
                              // Modify task definition file in-place using a temp file and jq
                              sh """
                                 tmpfile=\$(mktemp)
@@ -88,9 +89,9 @@ pipeline {
                 script {
                      withCredentials([usernamePassword(credentialsId: 'awscred', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                                sh '''
-                                docker build -t ${AWS_ACC_ID}/${env.IMAGE_NAME}:${env.IMAGE_TAG} .
+                                docker build -t ${AWS_ACC_ID}/${imageName}:${imageTag} .
                                 aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACC_ID}
-                                docker push ${AWS_ACC_ID}/${env.IMAGE_NAME}:${env.IMAGE_TAG}
+                                docker push ${AWS_ACC_ID}/${imageName}:${imageTag}
                                 '''
                      }
                }
@@ -124,7 +125,7 @@ pipeline {
 
        post {
         success {
-            echo "Build and Docker image and deployment to aws is successful: ${env.IMAGE_NAME}:${env.IMAGE_TAG}"
+            echo "Build and Docker image and deployment to aws is successful: ${imageName}:${imageTag}"
         }
         failure {
             echo "Build failed!"
