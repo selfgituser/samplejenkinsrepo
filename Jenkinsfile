@@ -49,14 +49,18 @@ pipeline {
 
 
         stage('Build Docker Image') {
-            steps {
-                sh '''
-                    docker context create jenkins-context --docker "host=unix:///var/run/docker.sock" || true
-                    docker context use jenkins-context
-                    export DOCKER_HOST=unix:///var/run/docker.sock
-                    docker version
-                    docker build -t samplemicro:latest .
-                '''
+            agent {
+                                    docker {
+                                        image 'amazon/aws-cli'
+                                        reuseNode true
+                                        args "--entrypoint=''"
+                                    }
+                                }
+
+         steps {
+                script {
+                    sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                }
             }
         }
 
