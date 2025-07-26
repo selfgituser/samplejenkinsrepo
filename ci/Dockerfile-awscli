@@ -1,5 +1,7 @@
 FROM docker:24.0-cli
 
+USER root
+
 # Install AWS CLI v2
 RUN apk add --no-cache curl unzip \
  && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
@@ -7,5 +9,8 @@ RUN apk add --no-cache curl unzip \
  && ./aws/install \
  && rm -rf awscliv2.zip aws
 
-# Check versions
+# Add AWS CLI path
+ENV PATH="/usr/local/bin:${PATH}"
+
+# Confirm tools installed
 RUN aws --version && docker --version
