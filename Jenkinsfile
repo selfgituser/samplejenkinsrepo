@@ -60,7 +60,6 @@ pipeline {
          steps {
                 script {
                     sh '''
-                    amazon-linux-extras install docker
                     docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
                     '''
                 }
