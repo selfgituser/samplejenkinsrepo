@@ -2,8 +2,6 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = 'samplemicro'
-        IMAGE_TAG = 'latest'
         AWS_ACC_ID = '982534379483.dkr.ecr.us-east-2.amazonaws.com'
         AWS_DEFAULT_REGION = 'us-east-2'
         AWS_CLUSTER='ecommerce-cluster'
@@ -51,7 +49,7 @@ pipeline {
 
 
 
-        /* stage('Build Docker Image') {
+         /* stage('Build Docker Image') {
             agent {
                     docker {
                              image 'my-aws-cli'
@@ -64,9 +62,9 @@ pipeline {
                 script {
                      withCredentials([usernamePassword(credentialsId: 'awscred', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                                sh '''
-                                docker build -t ${AWS_ACC_ID}/${IMAGE_NAME}:${IMAGE_TAG} .
+                                docker build -t ${AWS_ACC_ID}/${imageName}:${imageTag} .
                                 aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACC_ID}
-                                docker push ${AWS_ACC_ID}/${IMAGE_NAME}:${IMAGE_TAG}
+                                docker push ${AWS_ACC_ID}/${imageName}:${imageTag}
                                 '''
                      }
                }
@@ -96,12 +94,12 @@ pipeline {
     }
 
 
-     /* post {
+      /* post {
         success {
-            echo "Build and Docker image creation successful: ${IMAGE_NAME}:${IMAGE_TAG}"
+            echo "Build and Docker image and deployment to aws is successful: ${imageName}:${imageTag}"
         }
         failure {
             echo "Build failed!"
-        }
-    } */
+        } */
+    }
 }

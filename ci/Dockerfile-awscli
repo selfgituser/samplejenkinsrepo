@@ -34,6 +34,7 @@ RUN curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /
 # Verify installations
 RUN aws --version && docker --version && java -version
 
+RUN yum install jq -y
 # Default to bash (useful for Jenkins scripted pipelines)
 ENTRYPOINT ["/bin/bash"]
 
