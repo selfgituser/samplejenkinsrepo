@@ -96,6 +96,7 @@ pipeline {
         } */
     }
 
+
      post {
         success {
             echo "Build and Docker image creation successful: ${env.IMAGE_NAME}:${env.IMAGE_TAG}"
