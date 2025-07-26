@@ -48,6 +48,7 @@ pipeline {
                           def fullImage = "${AWS_ACC_ID}/${imageName}:${imageTag}"
                           // Modify task definition file in-place using a temp file and jq
                              sh """
+                                  apt-get update && apt-get install -y jq
                                   tmpfile=\$(mktemp)
                                   jq '.containerDefinitions[0].image = "${fullImage}"' ${TASK_DEF_FILE} > "\$tmpfile" && mv "\$tmpfile" ${TASK_DEF_FILE}
                                 """
