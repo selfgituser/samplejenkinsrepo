@@ -31,27 +31,23 @@ pipeline {
             }
         }
 
-      stage('Extract Image Info') {
-            steps {
-                script {
-                    def imageName = sh(
-                        script: "xmllint --xpath 'string(//mvn:project/mvn:artifactId)' pom.xml \
-                            --html --nowarning --recover \
-                            --xpath-ns mvn=http://maven.apache.org/POM/4.0.0",
-                        returnStdout: true
-                    ).trim()
+      stage('Extract Docker Image Info') {
+                  steps {
+                      script {
+                          def imageName = sh(
+                              script: "mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout",
+                              returnStdout: true
+                          ).trim()
 
-                    def imageTag = sh(
-                        script: "xmllint --xpath 'string(//mvn:project/mvn:version)' pom.xml \
-                            --html --nowarning --recover \
-                            --xpath-ns mvn=http://maven.apache.org/POM/4.0.0",
-                        returnStdout: true
-                    ).trim()
+                          def imageTag = sh(
+                              script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout",
+                              returnStdout: true
+                          ).trim()
 
-                    echo "Docker Image: ${imageName}:${imageTag}"
-                }
-            }
-        }
+                          echo "Docker Image: ${imageName}:${imageTag}"
+                      }
+                  }
+      }
 
 
 
