@@ -49,16 +49,22 @@ pipeline {
 
 
         stage('Build Docker Image') {
-
-          steps {
-                script {
-                    sh '''
-                    unset DOCKER_HOST
-                    docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
-                    '''
+            agent {
+                docker {
+                    image 'docker:24.0-cli'
+                    reuseNode true
+                    args '-v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
+            steps {
+                sh '''
+                    export DOCKER_HOST=unix:///var/run/docker.sock
+                    docker version
+                    docker build -t samplemicro:latest .
+                '''
+            }
         }
+
 
         /* stage('Push Docker Image') {
             steps {
