@@ -30,13 +30,13 @@ pipeline {
                     script {
                         // Get version
                         env.IMAGE_TAG = sh(
-                            script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout",
+                            script: "mvn help:evaluate -Dexpression=project.version -q -DforceStdout | grep -Ev '(^\\[|Download|WARNING)' | tail -n 1",
                             returnStdout: true
                         ).trim()
 
                         // Get artifactId or name
                         env.IMAGE_NAME = sh(
-                            script: "mvn help:evaluate -Dexpression=project.name -q -DforceStdout",
+                            script: "mvn help:evaluate -Dexpression=project.name -q -DforceStdout | grep -Ev '(^\\[|Download|WARNING)' | tail -n 1",
                             returnStdout: true
                         ).trim()
 
@@ -69,15 +69,7 @@ pipeline {
 
         stage('Build Docker Image') {
 
-            agent {
-                docker {
-                     image 'amazon/aws-cli'
-                     reuseNode true
-                     args "-u root -v /var/run/docker.sock:/var/run/docker.sock --entrypoint=''"
-                         }
-                    }
-
-            steps {
+          steps {
                 script {
                     sh "docker build -t ${env.IMAGE_NAME}:${env.IMAGE_TAG} ."
                 }
