@@ -1,2 +1,9 @@
 FROM amazon/aws-cli
-RUN amazon-linux-extras install docker
+
+USER root
+
+# Install Docker CLI
+RUN apk add --no-cache docker-cli
+
+# Confirm both tools exist
+RUN aws --version && docker --version
