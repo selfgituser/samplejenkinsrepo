@@ -64,6 +64,8 @@ pipeline {
                     }
                 }
  */
+
+
         stage('Build Docker Image') {
 
             agent {
@@ -96,7 +98,7 @@ pipeline {
 
      post {
         success {
-            echo "Build and Docker image creation successful: ${IMAGE_NAME}:${IMAGE_TAG}"
+            echo "Build and Docker image creation successful: ${env.IMAGE_NAME}:${env.IMAGE_TAG}"
         }
         failure {
             echo "Build failed!"
